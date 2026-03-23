@@ -1,0 +1,57 @@
+{
+  "default_voice_pack_ids": [
+    "neutral_analyst",
+    "high_energy_host",
+    "calm_educator"
+  ],
+  "voices": [
+    {
+      "id": "neutral_analyst",
+      "display_name": "Axiom",
+      "role": "Neutral analyst",
+      "podcast_role": "analyst_2",
+      "engine": "piper",
+      "model_path": "voice_assets/neutral_analyst/neutral_analyst.onnx",
+      "speaker_id": null,
+      "speed": 1.0,
+      "gain": 1.0,
+      "pause_ms": 260,
+      "subtitle_color": "#8ed8ff",
+      "optional": false,
+      "fallback_system_voice": "Daniel (English (UK))",
+      "say_rate": 182
+    },
+    {
+      "id": "high_energy_host",
+      "display_name": "Pulse",
+      "role": "High-energy host",
+      "podcast_role": "analyst_1",
+      "engine": "piper",
+      "model_path": "voice_assets/high_energy_host/high_energy_host.onnx",
+      "speaker_id": null,
+      "speed": 1.08,
+      "gain": 1.0,
+      "pause_ms": 220,
+      "subtitle_color": "#ff9f67",
+      "optional": false,
+      "fallback_system_voice": "Eddy (English (US))",
+      "say_rate": 212
+    },
+    {
+      "id": "calm_educator",
+      "display_name": "Sage",
+      "role": "Calm educator",
+      "podcast_role": "narrator",
+      "engine": "piper",
+      "model_path": "voice_assets/calm_educator/calm_educator.onnx",
+      "speaker_id": null,
+      "speed": 0.94,
+      "gain": 1.0,
+      "pause_ms": 300,
+      "subtitle_color": "#9cf1bb",
+      "optional": false,
+      "fallback_system_voice": "Flo (English (US))",
+      "say_rate": 170
+    }
+  ]
+}

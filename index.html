@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crypto Live Stream Overlay</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Sora:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css?v=20260323j" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <div class="ambient ambient-a"></div>
+      <div class="ambient ambient-b"></div>
+      <div class="ambient ambient-c"></div>
+      <div class="grain"></div>
+
+      <header class="topbar glass-panel">
+        <div class="topbar-spacer" aria-hidden="true"></div>
+
+        <div class="topbar-center">
+          <p class="eyebrow">Dedicated Pattern Engine</p>
+          <div class="brand-line">
+            <span class="brand-mark">SM</span>
+            <span id="brand-pattern">Detector Scan Active</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <div class="live-pill">
+            <span class="live-dot"></span>
+            <span>LIVE</span>
+          </div>
+
+          <button id="voice-toggle" class="voice-panel" type="button">
+            <span class="eyebrow">Commentary Audio</span>
+            <div class="voice-panel-main">
+              <strong id="voice-button-label">Enable Voice</strong>
+              <span id="voice-status">Click once to allow local audio</span>
+            </div>
+          </button>
+
+          <div class="next-panel">
+            <span class="eyebrow">Next Rotation</span>
+            <div class="next-panel-main">
+              <strong id="next-coin">ETH</strong>
+              <span id="rotation-countdown">11:59</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="content-grid">
+        <section class="chart-card glass-panel">
+          <section class="interval-banner">
+            <div class="interval-banner-header">
+              <div class="interval-banner-coin">
+                <div class="coin-avatar interval-coin-avatar" id="coin-avatar">BTC</div>
+                <div class="interval-coin-copy">
+                  <span class="card-label">Single Live Rotation</span>
+                  <strong id="coin-pair">BTC / USD</strong>
+                </div>
+              </div>
+              <div class="interval-banner-copy">
+                <span class="card-label">Timeframe Cycle</span>
+                <div class="interval-banner-main">
+                  <strong id="current-interval">1m</strong>
+                  <span id="interval-switch-copy">Switching to 5m in 02:00</span>
+                </div>
+              </div>
+            </div>
+            <div class="interval-progress-shell">
+              <div id="slot-progress" class="interval-progress-fill"></div>
+            </div>
+            <div id="interval-switchboard" class="interval-switchboard"></div>
+          </section>
+
+          <div class="chart-stage">
+            <div class="scan-line"></div>
+            <div class="chart-overlay chart-overlay-right">
+              <span class="price-value" id="current-price">67,245</span>
+              <span class="price-change" id="current-change">+2.31%</span>
+              <small id="alert-tagline">No high-confidence pattern detected</small>
+            </div>
+
+            <svg id="price-chart" viewBox="0 0 1120 560" preserveAspectRatio="none" aria-label="Price chart"></svg>
+          </div>
+          <section class="commentary-dock glass-panel">
+            <div id="voice-subtitle-layer" class="voice-subtitle-layer" aria-live="polite" aria-atomic="true"></div>
+          </section>
+        </section>
+
+        <aside class="side-column">
+          <section class="signal-card glass-panel reference-shell">
+            <div id="pattern-reference-card" class="pattern-reference-card"></div>
+          </section>
+
+          <div class="side-lower-grid">
+            <section class="signal-card glass-panel similarity-card">
+              <div class="card-head">
+                <div>
+                  <p class="eyebrow">Secondary Pattern Reads</p>
+                  <h3>Next Closest Matches</h3>
+                </div>
+                <span class="card-tag">Top 2</span>
+              </div>
+
+              <div id="lead-pattern-card" class="lead-pattern-card"></div>
+            </section>
+
+            <section class="signal-card glass-panel news-card">
+              <div class="card-head">
+                <div>
+                  <p class="eyebrow">Latest Crypto News</p>
+                  <h3>Headline Feed</h3>
+                </div>
+                <span id="news-rotation-meta" class="card-tag">30s</span>
+              </div>
+
+              <div id="news-panel-card" class="news-panel-card"></div>
+            </section>
+          </div>
+        </aside>
+      </main>
+
+      <section class="alert-ribbon glass-panel">
+        <div class="alert-icon">!</div>
+
+        <div class="alert-copy">
+          <p class="eyebrow">Warning</p>
+          <h2>This stream is for educational purposes only.</h2>
+          <p>
+            This is not financial advice. Do your own research. We are not responsible for gains, losses, or decisions made using this content.
+          </p>
+        </div>
+
+        <div class="alert-score">
+          <span>Educational Use Only</span>
+          <strong>DYOR</strong>
+        </div>
+      </section>
+
+      <footer class="ticker-wrap glass-panel">
+        <div class="ticker-track" id="ticker-track"></div>
+      </footer>
+
+      <audio id="voice-audio-player" class="voice-audio-player" preload="auto"></audio>
+      <div id="intermission-overlay" class="intermission-overlay" aria-hidden="true"></div>
+    </div>
+
+    <script src="app.js?v=20260323j"></script>
+  </body>
+</html>
