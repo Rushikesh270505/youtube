@@ -47,6 +47,14 @@ const INTERMISSION_NEWS_MIN_MS = 6000;
 const INTERMISSION_NEWS_MAX_MS = 8000;
 const INTERMISSION_DOOR_CLOSE_MS = 1100;
 const INTERMISSION_DOOR_OPEN_MS = 1100;
+const DEFAULT_VOICE_VOLUME = 0.8;
+const DEFAULT_BGM_VOLUME = 0.2;
+const AUDIO_MIX_STORAGE_KEYS = {
+  voiceVolume: "crypto_live_voice_volume",
+  bgmVolume: "crypto_live_bgm_volume",
+  bgmEnabled: "crypto_live_bgm_enabled",
+  bgmTrackIndex: "crypto_live_bgm_track_index",
+};
 
 const dom = {
   coinAvatar: document.getElementById("coin-avatar"),
@@ -57,6 +65,12 @@ const dom = {
   voiceToggle: document.getElementById("voice-toggle"),
   voiceButtonLabel: document.getElementById("voice-button-label"),
   voiceStatus: document.getElementById("voice-status"),
+  voiceVolumeSlider: document.getElementById("voice-volume-slider"),
+  voiceVolumeValue: document.getElementById("voice-volume-value"),
+  bgmVolumeSlider: document.getElementById("bgm-volume-slider"),
+  bgmVolumeValue: document.getElementById("bgm-volume-value"),
+  bgmToggle: document.getElementById("bgm-toggle"),
+  bgmTrackLabel: document.getElementById("bgm-track-label"),
   currentInterval: document.getElementById("current-interval"),
   intervalSwitchCopy: document.getElementById("interval-switch-copy"),
   slotProgress: document.getElementById("slot-progress"),
@@ -87,6 +101,7 @@ const dom = {
   tickerTrack: document.getElementById("ticker-track"),
   voiceSubtitleLayer: document.getElementById("voice-subtitle-layer"),
   voiceAudioPlayer: document.getElementById("voice-audio-player"),
+  bgmAudioPlayer: document.getElementById("bgm-audio-player"),
   intermissionOverlay: document.getElementById("intermission-overlay"),
 };
 
@@ -125,6 +140,15 @@ const state = {
     spreadPercent: null,
     updatedAt: 0,
     status: "Loading",
+  },
+  audioMix: {
+    voiceVolume: DEFAULT_VOICE_VOLUME,
+    bgmVolume: DEFAULT_BGM_VOLUME,
+    bgmEnabled: true,
+    bgmTracks: [],
+    bgmTrackIndex: 0,
+    bgmStatus: "BGM loading...",
+    bgmAudio: null,
   },
   intermission: {
     active: false,
@@ -368,6 +392,50 @@ function nextCoin(offset = 1) {
 
 function currentInterval() {
   return MULTI_TIMEFRAME_INTERVALS[state.currentIntervalIndex] || MULTI_TIMEFRAME_INTERVALS[0];
+}
+
+function readStoredNumber(key, fallback, min = 0, max = 1) {
+  try {
+    const raw = window.localStorage.getItem(key);
+    const parsed = Number(raw);
+    return Number.isFinite(parsed) ? clamp(parsed, min, max) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function readStoredBoolean(key, fallback) {
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (raw === null) {
+      return fallback;
+    }
+    return raw === "true";
+  } catch {
+    return fallback;
+  }
+}
+
+function writeStoredSetting(key, value) {
+  try {
+    window.localStorage.setItem(key, String(value));
+  } catch {
+    // Ignore storage failures in private or restricted browser contexts.
+  }
+}
+
+function loadAudioMixSettings() {
+  state.audioMix.voiceVolume = readStoredNumber(AUDIO_MIX_STORAGE_KEYS.voiceVolume, DEFAULT_VOICE_VOLUME, 0, 1);
+  state.audioMix.bgmVolume = readStoredNumber(AUDIO_MIX_STORAGE_KEYS.bgmVolume, DEFAULT_BGM_VOLUME, 0, 1);
+  state.audioMix.bgmEnabled = readStoredBoolean(AUDIO_MIX_STORAGE_KEYS.bgmEnabled, true);
+  state.audioMix.bgmTrackIndex = Math.max(0, Math.round(readStoredNumber(AUDIO_MIX_STORAGE_KEYS.bgmTrackIndex, 0, 0, 999)));
+}
+
+function persistAudioMixSettings() {
+  writeStoredSetting(AUDIO_MIX_STORAGE_KEYS.voiceVolume, state.audioMix.voiceVolume);
+  writeStoredSetting(AUDIO_MIX_STORAGE_KEYS.bgmVolume, state.audioMix.bgmVolume);
+  writeStoredSetting(AUDIO_MIX_STORAGE_KEYS.bgmEnabled, state.audioMix.bgmEnabled);
+  writeStoredSetting(AUDIO_MIX_STORAGE_KEYS.bgmTrackIndex, state.audioMix.bgmTrackIndex);
 }
 
 function timeframeStepMs() {
@@ -1116,11 +1184,148 @@ async function requestPodcastRender(payload) {
   return await response.json();
 }
 
+function currentBgmTrack() {
+  return state.audioMix.bgmTracks[state.audioMix.bgmTrackIndex] || null;
+}
+
+function applyVoiceVolume() {
+  if (voiceDirector.audio) {
+    voiceDirector.audio.volume = clamp(state.audioMix.voiceVolume, 0, 1);
+  }
+}
+
+function applyBgmVolume() {
+  const bgmAudio = state.audioMix.bgmAudio;
+  if (!bgmAudio) {
+    return;
+  }
+  const effectiveVolume = state.audioMix.bgmEnabled ? clamp(state.audioMix.bgmVolume, 0, 1) : 0;
+  bgmAudio.volume = effectiveVolume;
+  bgmAudio.muted = effectiveVolume <= 0;
+}
+
+function updateAudioMixControls() {
+  const voicePercent = Math.round(clamp(state.audioMix.voiceVolume, 0, 1) * 100);
+  const bgmPercent = Math.round(clamp(state.audioMix.bgmVolume, 0, 1) * 100);
+  const bgmTrack = currentBgmTrack();
+
+  if (dom.voiceVolumeSlider) {
+    dom.voiceVolumeSlider.value = String(voicePercent);
+  }
+  if (dom.voiceVolumeValue) {
+    dom.voiceVolumeValue.textContent = `${voicePercent}%`;
+  }
+  if (dom.bgmVolumeSlider) {
+    dom.bgmVolumeSlider.value = String(bgmPercent);
+  }
+  if (dom.bgmVolumeValue) {
+    dom.bgmVolumeValue.textContent = `${bgmPercent}%`;
+  }
+  if (dom.bgmTrackLabel) {
+    dom.bgmTrackLabel.textContent = bgmTrack?.name || state.audioMix.bgmStatus || "BGM unavailable";
+  }
+  if (dom.bgmToggle) {
+    dom.bgmToggle.textContent = state.audioMix.bgmEnabled ? "BGM On" : "BGM Off";
+    dom.bgmToggle.classList.remove("active", "warning");
+    if (!state.audioMix.bgmTracks.length) {
+      dom.bgmToggle.classList.add("warning");
+      dom.bgmToggle.disabled = true;
+    } else {
+      dom.bgmToggle.disabled = false;
+      if (state.audioMix.bgmEnabled) {
+        dom.bgmToggle.classList.add("active");
+      }
+    }
+  }
+}
+
+function setBgmTrack(index, { restart = false } = {}) {
+  if (!state.audioMix.bgmTracks.length || !state.audioMix.bgmAudio) {
+    return;
+  }
+
+  const nextIndex = ((index % state.audioMix.bgmTracks.length) + state.audioMix.bgmTracks.length) % state.audioMix.bgmTracks.length;
+  const track = state.audioMix.bgmTracks[nextIndex];
+  const bgmAudio = state.audioMix.bgmAudio;
+  const nextSrc = `${track.url}${track.url.includes("?") ? "&" : "?"}v=${Date.now()}`;
+  const shouldSwap = restart || bgmAudio.dataset.trackUrl !== track.url;
+
+  state.audioMix.bgmTrackIndex = nextIndex;
+  state.audioMix.bgmStatus = track.name || "BGM ready";
+  persistAudioMixSettings();
+
+  if (shouldSwap) {
+    bgmAudio.pause();
+    bgmAudio.src = nextSrc;
+    bgmAudio.dataset.trackUrl = track.url;
+    bgmAudio.load();
+  }
+
+  applyBgmVolume();
+  updateAudioMixControls();
+}
+
+async function ensureBgmPlayback({ restart = false } = {}) {
+  const bgmAudio = state.audioMix.bgmAudio;
+  if (!bgmAudio || !voiceDirector.audioUnlocked || !state.audioMix.bgmEnabled || !state.audioMix.bgmTracks.length) {
+    applyBgmVolume();
+    updateAudioMixControls();
+    return;
+  }
+
+  setBgmTrack(state.audioMix.bgmTrackIndex, { restart });
+  applyBgmVolume();
+
+  try {
+    await bgmAudio.play();
+    state.audioMix.bgmStatus = currentBgmTrack()?.name || "BGM live";
+  } catch {
+    state.audioMix.bgmStatus = "Click audio once to start BGM";
+  }
+  updateAudioMixControls();
+}
+
+function pauseBgmPlayback() {
+  if (state.audioMix.bgmAudio) {
+    state.audioMix.bgmAudio.pause();
+  }
+}
+
+async function refreshBgmPlaylist() {
+  try {
+    const response = await fetch("/api/bgm-playlist", { cache: "no-store" });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    const payload = await response.json();
+    state.audioMix.bgmTracks = payload.tracks || [];
+    if (!state.audioMix.bgmTracks.length) {
+      state.audioMix.bgmStatus = "No BGM tracks found";
+      updateAudioMixControls();
+      return payload;
+    }
+    if (state.audioMix.bgmTrackIndex >= state.audioMix.bgmTracks.length) {
+      state.audioMix.bgmTrackIndex = 0;
+    }
+    setBgmTrack(state.audioMix.bgmTrackIndex, { restart: false });
+    if (voiceDirector.audioUnlocked && state.audioMix.bgmEnabled) {
+      void ensureBgmPlayback({ restart: false });
+    }
+    return payload;
+  } catch {
+    state.audioMix.bgmTracks = [];
+    state.audioMix.bgmStatus = "BGM offline";
+    updateAudioMixControls();
+    return null;
+  }
+}
+
 function updateVoiceControls() {
   if (!dom.voiceToggle || !dom.voiceButtonLabel || !dom.voiceStatus) {
     return;
   }
 
+  updateAudioMixControls();
   const hasPodcastConfig = Boolean(voiceDirector.podcastConfig);
   dom.voiceToggle.classList.remove("active", "warning");
 
@@ -1167,7 +1372,9 @@ function updateVoiceControls() {
 async function unlockVoicePlayback(triggerTest = false) {
   voiceDirector.audioUnlocked = true;
   voiceDirector.audioPlaybackAllowed = true;
+  applyVoiceVolume();
   updateVoiceControls();
+  void ensureBgmPlayback({ restart: false });
 
   try {
     const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
@@ -1207,13 +1414,24 @@ async function initVoiceDirector() {
   voiceDirector.audio = dom.voiceAudioPlayer || new Audio();
   voiceDirector.audio.preload = "auto";
   voiceDirector.audio.crossOrigin = "anonymous";
-  voiceDirector.audio.volume = 1;
+  voiceDirector.audio.volume = state.audioMix.voiceVolume;
   voiceDirector.audio.muted = false;
   voiceDirector.audio.playsInline = true;
   if (!dom.voiceAudioPlayer && voiceDirector.audio instanceof HTMLAudioElement) {
     voiceDirector.audio.className = "voice-audio-player";
     document.body.appendChild(voiceDirector.audio);
   }
+  state.audioMix.bgmAudio = dom.bgmAudioPlayer || new Audio();
+  state.audioMix.bgmAudio.preload = "auto";
+  state.audioMix.bgmAudio.crossOrigin = "anonymous";
+  state.audioMix.bgmAudio.playsInline = true;
+  state.audioMix.bgmAudio.loop = true;
+  if (!dom.bgmAudioPlayer && state.audioMix.bgmAudio instanceof HTMLAudioElement) {
+    state.audioMix.bgmAudio.className = "voice-audio-player";
+    document.body.appendChild(state.audioMix.bgmAudio);
+  }
+  applyVoiceVolume();
+  applyBgmVolume();
   if (dom.voiceToggle) {
     dom.voiceToggle.addEventListener("click", (event) => {
       event.preventDefault();
@@ -1222,6 +1440,41 @@ async function initVoiceDirector() {
         return;
       }
       window.cryptoStreamOverlay?.testVoice?.();
+    });
+  }
+  if (dom.voiceVolumeSlider) {
+    dom.voiceVolumeSlider.addEventListener("input", (event) => {
+      const value = Number(event.target?.value ?? DEFAULT_VOICE_VOLUME * 100);
+      state.audioMix.voiceVolume = clamp(value / 100, 0, 1);
+      applyVoiceVolume();
+      persistAudioMixSettings();
+      updateAudioMixControls();
+    });
+  }
+  if (dom.bgmVolumeSlider) {
+    dom.bgmVolumeSlider.addEventListener("input", (event) => {
+      const value = Number(event.target?.value ?? DEFAULT_BGM_VOLUME * 100);
+      state.audioMix.bgmVolume = clamp(value / 100, 0, 1);
+      applyBgmVolume();
+      persistAudioMixSettings();
+      updateAudioMixControls();
+      if (voiceDirector.audioUnlocked && state.audioMix.bgmEnabled) {
+        void ensureBgmPlayback({ restart: false });
+      }
+    });
+  }
+  if (dom.bgmToggle) {
+    dom.bgmToggle.addEventListener("click", (event) => {
+      event.preventDefault();
+      state.audioMix.bgmEnabled = !state.audioMix.bgmEnabled;
+      persistAudioMixSettings();
+      if (state.audioMix.bgmEnabled) {
+        void ensureBgmPlayback({ restart: false });
+      } else {
+        pauseBgmPlayback();
+        applyBgmVolume();
+        updateAudioMixControls();
+      }
     });
   }
   const unlockFromGesture = () => {
@@ -1233,6 +1486,7 @@ async function initVoiceDirector() {
   window.addEventListener("keydown", unlockFromGesture, { once: true, capture: true });
   await refreshVoiceCatalog();
   await refreshPodcastCatalog();
+  await refreshBgmPlaylist();
   updateVoiceControls();
 }
 
@@ -1874,6 +2128,7 @@ async function playAudioClip(clip, playbackToken) {
       finish(true);
     };
     audio.onerror = () => finish(false);
+    applyVoiceVolume();
     audio.src = `${clip.audio_url}${clip.audio_url.includes("?") ? "&" : "?"}v=${Date.now()}`;
     audio.currentTime = 0;
 
@@ -5351,9 +5606,12 @@ function render() {
     maybeQueueAmbientCommentary(false);
   }
   updateVoiceControls();
+  updateAudioMixControls();
 }
 
 async function init() {
+  loadAudioMixSettings();
+  updateAudioMixControls();
   updateCountdown();
   await loadDetectorEngine().catch(() => {});
   await loadIntermissionEngine().catch(() => {});

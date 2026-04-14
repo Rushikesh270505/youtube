@@ -1,0 +1,18 @@
+{
+  "id": "neutral_analyst",
+  "display_name": "Zephyr",
+  "source_type": "ai_studio_voice_library",
+  "source_project_dir": "/Users/rushikeshkatari/Desktop/new voice packs/analyst-2/zephyr_voice-library",
+  "source_metadata": {
+    "name": "Voice Library",
+    "description": "Find the perfect voice for your Text to Speech needs. Simply describe the voice you are looking for and the AI will do the casting for you.",
+    "requestFramePermissions": []
+  },
+  "local_runtime": {
+    "engine": "gemini",
+    "google_voice_name": "Zephyr",
+    "google_model_id": "gemini-2.5-pro-preview-tts",
+    "fallback_system_voice": "Daniel (English (UK))",
+    "conversion_note": "AI Studio voice-library projects can run directly through Gemini TTS by voice name. A local Piper .onnx model is still optional if you later want full offline synthesis."
+  }
+}

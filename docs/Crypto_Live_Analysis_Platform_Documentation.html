@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Crypto Live Analysis Platform Documentation</title>
+    <style>
+      body {
+        font-family: "Helvetica", "Arial", sans-serif;
+        line-height: 1.55;
+        color: #1b2330;
+        margin: 42px;
+      }
+      h1, h2, h3 {
+        color: #0f2742;
+      }
+      h1 {
+        font-size: 28px;
+        margin-bottom: 8px;
+      }
+      h2 {
+        font-size: 18px;
+        margin-top: 28px;
+        margin-bottom: 8px;
+        border-bottom: 1px solid #d7e1ec;
+        padding-bottom: 4px;
+      }
+      h3 {
+        font-size: 14px;
+        margin-top: 18px;
+        margin-bottom: 6px;
+      }
+      p {
+        margin: 8px 0;
+      }
+      ul, ol {
+        margin-top: 6px;
+        margin-bottom: 10px;
+      }
+      li {
+        margin: 4px 0;
+      }
+      .subtitle {
+        color: #4a627d;
+        font-size: 12px;
+        margin-bottom: 18px;
+      }
+      .box {
+        background: #f5f9fc;
+        border: 1px solid #d8e4ef;
+        padding: 12px 14px;
+        border-radius: 8px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 10px 0 16px 0;
+      }
+      th, td {
+        border: 1px solid #d7e1ec;
+        padding: 8px 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+      th {
+        background: #eef4f9;
+      }
+      code {
+        background: #eef4f9;
+        padding: 1px 4px;
+        border-radius: 4px;
+      }
+      .small {
+        font-size: 11px;
+        color: #5a6e85;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Crypto Live Analysis Platform Documentation</h1>
+    <p class="subtitle">
+      Single-document overview of the platform, how crypto live analysis works in the system,
+      the technology stack, the voice-pack system, and the conversation-generation pipeline.
+      Prepared on April 9, 2026.
+    </p>
+
+    <div class="box">
+      <p><strong>Purpose:</strong> This document explains the platform as a whole. It covers the live crypto analysis workflow, the frontend and backend architecture, the tech stack, how voice packs are used, and how spoken multi-speaker conversations are generated.</p>
+    </div>
+
+    <h2>1. What This Platform Is</h2>
+    <p>
+      This is a crypto live analysis platform designed for live market monitoring, visual analysis,
+      commentary generation, and trading education. It combines:
+    </p>
+    <ul>
+      <li>a live chart and pattern-detection overlay</li>
+      <li>a strategy lab / backtest experience</li>
+      <li>a voice commentary layer</li>
+      <li>a podcast-style multi-speaker conversation engine</li>
+      <li>desktop packaging for local app distribution</li>
+    </ul>
+    <p>
+      The platform is designed to feel like a professional live trading and commentary desk,
+      but it is primarily a simulation and analysis environment rather than a real brokerage execution system.
+    </p>
+
+    <h2>2. What Crypto Live Analysis Means In This Platform</h2>
+    <p>
+      Crypto live analysis means reading the market while price is actively moving and presenting that read in a usable form.
+      Instead of relying only on static charts, the platform combines:
+    </p>
+    <ul>
+      <li>live Binance price and candle data</li>
+      <li>pattern and structure analysis across multiple timeframes</li>
+      <li>contextual summaries</li>
+      <li>headline integration</li>
+      <li>voice and subtitle delivery</li>
+    </ul>
+    <p>
+      The platform is not only trying to answer “what is price doing?” It is also trying to answer:
+    </p>
+    <ul>
+      <li>what structure is dominant</li>
+      <li>how confident the read is</li>
+      <li>which timeframe is leading</li>
+      <li>whether the market is transitioning or confirming</li>
+      <li>how to explain that read clearly to a viewer or listener</li>
+    </ul>
+
+    <h2>3. High-Level System Modules</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Module</th>
+          <th>Purpose</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Live Overlay Frontend</td>
+          <td>Displays the rotating live crypto chart, pattern panels, news feed, subtitles, and intermission flow.</td>
+        </tr>
+        <tr>
+          <td>Strategy Lab</td>
+          <td>Provides backtesting, ICT-style trade call views, and annotated analysis screens.</td>
+        </tr>
+        <tr>
+          <td>Backend API</td>
+          <td>Serves static assets, voice APIs, podcast APIs, and strategy-lab endpoints.</td>
+        </tr>
+        <tr>
+          <td>Voice Service</td>
+          <td>Loads voice packs, selects runtime engines, renders audio clips, and manages voice assignments.</td>
+        </tr>
+        <tr>
+          <td>Podcast Voice Engine</td>
+          <td>Builds multi-speaker scripts and renders podcast-style commentary.</td>
+        </tr>
+        <tr>
+          <td>Pattern / Detector Layer</td>
+          <td>Reads live market structure and pattern states for each timeframe.</td>
+        </tr>
+        <tr>
+          <td>Desktop Packaging</td>
+          <td>Wraps the system as an Electron-based desktop application.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>4. Tech Stack</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Layer</th>
+          <th>Technology</th>
+          <th>How It Is Used</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Main Overlay Frontend</td>
+          <td>HTML, CSS, Vanilla JavaScript</td>
+          <td>Drives the main live overlay, chart visuals, state flow, voice controls, and rotation logic.</td>
+        </tr>
+        <tr>
+          <td>Companion Web App</td>
+          <td>Next.js, React, TypeScript, Tailwind, Zustand</td>
+          <td>Used for the strategy-lab style dashboard and richer trading simulation views.</td>
+        </tr>
+        <tr>
+          <td>Backend</td>
+          <td>FastAPI</td>
+          <td>Provides APIs for health, voice status, commentary rendering, podcast rendering, and strategy-lab data.</td>
+        </tr>
+        <tr>
+          <td>Market Data</td>
+          <td>Binance REST and Binance WebSocket</td>
+          <td>Provides live candles, ticker data, and market updates.</td>
+        </tr>
+        <tr>
+          <td>Voice Rendering</td>
+          <td>Piper, macOS <code>say</code>, Gemini audio/TTS</td>
+          <td>Supplies local and cloud-backed voice synthesis paths.</td>
+        </tr>
+        <tr>
+          <td>Analysis Utilities</td>
+          <td>JavaScript modules and Python services</td>
+          <td>Generate market reads, pattern votes, strategy calls, and backtests.</td>
+        </tr>
+        <tr>
+          <td>Packaging</td>
+          <td>Electron, electron-builder, PyInstaller</td>
+          <td>Packages the backend and app resources into a desktop app.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>5. Core Runtime Architecture</h2>
+    <p>The platform works in layers.</p>
+
+    <h3>5.1 Frontend Layer</h3>
+    <p>
+      The main overlay frontend is loaded from static files. It renders:
+    </p>
+    <ul>
+      <li>the live chart</li>
+      <li>the active coin rotation</li>
+      <li>pattern summaries</li>
+      <li>headline feed</li>
+      <li>voice status and playback controls</li>
+      <li>subtitle output from spoken commentary</li>
+    </ul>
+
+    <h3>5.2 Backend Layer</h3>
+    <p>
+      The backend exposes a unified local API. It serves:
+    </p>
+    <ul>
+      <li>voice status APIs</li>
+      <li>voice assignment APIs</li>
+      <li>commentary rendering APIs</li>
+      <li>podcast rendering APIs</li>
+      <li>strategy lab APIs</li>
+      <li>audio file endpoints for generated clips</li>
+    </ul>
+
+    <h3>5.3 Voice Layer</h3>
+    <p>
+      The voice layer decides which voice engine to use, synthesizes clips, caches them, and exposes them back to the UI.
+    </p>
+
+    <h2>6. How The Live Analysis Works</h2>
+
+    <h3>Step 1: Market Data Is Collected</h3>
+    <p>
+      The live overlay reads Binance market data using REST and WebSocket sources. The main overlay rotates through coins such as:
+    </p>
+    <ul>
+      <li>BTC</li>
+      <li>ETH</li>
+      <li>SOL</li>
+      <li>XRP</li>
+      <li>DOGE</li>
+      <li>PEPE</li>
+      <li>PAXG</li>
+    </ul>
+
+    <h3>Step 2: Multi-Timeframe Analysis Is Built</h3>
+    <p>
+      The analysis layer works top down, using intervals such as:
+    </p>
+    <ul>
+      <li>4H</li>
+      <li>1H</li>
+      <li>30M</li>
+      <li>15M</li>
+      <li>5M</li>
+      <li>1M</li>
+    </ul>
+    <p>
+      These intervals are used to build alignment, identify leading structure, and determine whether lower timeframe moves agree with higher timeframe context.
+    </p>
+
+    <h3>Step 3: Patterns And Structure Are Summarized</h3>
+    <p>
+      The detector and intermission utilities generate structured reads that describe:
+    </p>
+    <ul>
+      <li>dominant pattern or regime</li>
+      <li>bias</li>
+      <li>confidence</li>
+      <li>alignment across timeframes</li>
+      <li>support and resistance context</li>
+      <li>headline-aware narrative transitions</li>
+    </ul>
+
+    <h3>Step 4: Visual Output Is Updated</h3>
+    <p>
+      The frontend updates:
+    </p>
+    <ul>
+      <li>price chart</li>
+      <li>pattern card</li>
+      <li>news panel</li>
+      <li>rotation timer</li>
+      <li>voice subtitle layer</li>
+      <li>intermission overlay</li>
+    </ul>
+
+    <h3>Step 5: Spoken Commentary Can Be Generated</h3>
+    <p>
+      When commentary is enabled, the backend converts the current market read into structured speaking turns and then renders those turns as audio clips.
+    </p>
+
+    <h2>7. How System Voice Packs Are Used</h2>
+
+    <h3>7.1 Voice Pack Configuration</h3>
+    <p>
+      The platform uses voice-pack definitions stored in:
+    </p>
+    <ul>
+      <li><code>voice_packs/hosts.json</code></li>
+    </ul>
+    <p>
+      Each voice pack defines:
+    </p>
+    <ul>
+      <li>an internal pack id</li>
+      <li>display name</li>
+      <li>role</li>
+      <li>podcast role</li>
+      <li>engine type</li>
+      <li>model path</li>
+      <li>pause length</li>
+      <li>subtitle color</li>
+      <li>fallback system voice</li>
+      <li>Google voice metadata for Gemini audio</li>
+    </ul>
+
+    <h3>7.2 Current Default Packs</h3>
+    <p>The default manifest currently uses three packs:</p>
+    <ul>
+      <li><code>neutral_analyst</code></li>
+      <li><code>high_energy_host</code></li>
+      <li><code>calm_educator</code></li>
+    </ul>
+
+    <h3>7.3 Runtime Selection</h3>
+    <p>
+      The system does not always use only one voice engine. Instead, it resolves the best available runtime for each pack.
+      The runtime-selection logic supports:
+    </p>
+    <ul>
+      <li><strong>Gemini Live / Gemini TTS:</strong> preferred when configured and available</li>
+      <li><strong>Piper:</strong> preferred local model runtime when a model is available</li>
+      <li><strong>macOS <code>say</code>:</strong> system-voice fallback on macOS</li>
+      <li><strong>None:</strong> subtitle-only mode if no runtime is available</li>
+    </ul>
+    <p>
+      This means the platform can keep working even if a preferred voice model is missing.
+    </p>
+
+    <h3>7.4 Why System Voices Matter</h3>
+    <p>
+      System voices are important because they make the platform usable immediately on a macOS machine without waiting for custom local TTS models.
+      If custom Piper or Gemini-backed voices are not ready yet, the app can still speak using local system voices through <code>say</code>.
+    </p>
+
+    <h3>7.5 Voice Assignment Layer</h3>
+    <p>
+      The app also supports persistent voice-role assignments. A user can map roles like:
+    </p>
+    <ul>
+      <li>Analyst 1</li>
+      <li>Analyst 2</li>
+      <li>Host</li>
+    </ul>
+    <p>
+      to selected voices using the voice-assignment API. Those assignments are stored locally so the voice cast remains stable across sessions.
+    </p>
+
+    <h2>8. How The Platform Builds Conversations</h2>
+
+    <h3>8.1 Commentary Modes</h3>
+    <p>The short-form commentary system supports multiple modes, including:</p>
+    <ul>
+      <li>intermission summary</li>
+      <li>intermission news</li>
+      <li>subscribe call-to-action</li>
+      <li>live event reactions</li>
+    </ul>
+    <p>
+      These modes are planned in the commentary service and each one builds a sequence of speaking turns.
+    </p>
+
+    <h3>8.2 Conversation Planning</h3>
+    <p>
+      The short commentary pipeline works like this:
+    </p>
+    <ol>
+      <li>The frontend or another part of the app sends a commentary request.</li>
+      <li>The backend chooses a commentary mode.</li>
+      <li>The service builds a list of clips in speaking order.</li>
+      <li>Each clip is assigned a speaker, text, pause length, and stage.</li>
+      <li>The clips are rendered into audio or returned as subtitle-only data.</li>
+    </ol>
+
+    <h3>8.3 Multi-Speaker Podcast Conversations</h3>
+    <p>
+      The richer conversation system is handled by the podcast engine. It creates a structured roundtable using roles like:
+    </p>
+    <ul>
+      <li>Analyst 1</li>
+      <li>Analyst 2</li>
+      <li>Host / Narrator</li>
+    </ul>
+    <p>
+      The engine takes live context, timeframe analyses, and headline data, then turns them into a script package.
+    </p>
+
+    <h3>8.4 What The Podcast Engine Produces</h3>
+    <p>The podcast render pipeline produces:</p>
+    <ul>
+      <li>a structured multi-speaker script</li>
+      <li>plain text transcript</li>
+      <li>speaker metadata</li>
+      <li>per-clip audio files</li>
+      <li>timestamped transcript entries</li>
+      <li>a merged audio file when possible</li>
+    </ul>
+
+    <h3>8.5 Why Conversations Sound Structured</h3>
+    <p>
+      Conversations are not random text blobs. They are assembled from role-based templates and seeded phrase variations.
+      That gives the output:
+    </p>
+    <ul>
+      <li>clear speaker turns</li>
+      <li>consistent speaking roles</li>
+      <li>controlled pacing</li>
+      <li>repeatable style</li>
+      <li>market-aware transitions</li>
+    </ul>
+    <p>
+      The result is a format that feels more like a live analyst desk than a single robotic narrator.
+    </p>
+
+    <h2>9. Main APIs Related To Analysis And Voice</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Endpoint</th>
+          <th>Purpose</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>GET /api/health</code></td>
+          <td>Checks overall service health and voice readiness.</td>
+        </tr>
+        <tr>
+          <td><code>GET /api/voices</code></td>
+          <td>Returns voice status and availability.</td>
+        </tr>
+        <tr>
+          <td><code>GET /api/voice-catalog</code></td>
+          <td>Returns the available local/system voice catalog.</td>
+        </tr>
+        <tr>
+          <td><code>GET /api/voice-assignments</code></td>
+          <td>Returns current voice-role mappings.</td>
+        </tr>
+        <tr>
+          <td><code>POST /api/voice-assignments</code></td>
+          <td>Updates role-to-voice assignments.</td>
+        </tr>
+        <tr>
+          <td><code>POST /api/commentary/render</code></td>
+          <td>Builds short commentary clips.</td>
+        </tr>
+        <tr>
+          <td><code>GET /api/podcast/config</code></td>
+          <td>Returns the current podcast cast and readiness.</td>
+        </tr>
+        <tr>
+          <td><code>POST /api/podcast/render</code></td>
+          <td>Builds and renders multi-speaker podcast-style conversations.</td>
+        </tr>
+        <tr>
+          <td><code>GET /api/audio/{session_id}/{clip_id}.wav</code></td>
+          <td>Serves generated commentary clip audio.</td>
+        </tr>
+        <tr>
+          <td><code>GET /api/podcast/audio/{session_id}/{filename}</code></td>
+          <td>Serves generated podcast audio.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>10. Stream Controls And Audio UX</h2>
+    <p>
+      For a live crypto analysis platform, audio controls are part of the operator workflow, not just a cosmetic option.
+      The platform should keep <strong>voice</strong> and <strong>BGM</strong> controls available even during the stream-start countdown or starting timer.
+    </p>
+
+    <h3>10.1 Why Voice And BGM Sliders Matter</h3>
+    <ul>
+      <li>The operator may need to balance commentary loudness before the stream fully opens.</li>
+      <li>BGM often needs to be reduced before spoken analysis starts.</li>
+      <li>Countdown periods are commonly used to test the final live mix.</li>
+      <li>Hiding audio controls during the start timer creates unnecessary friction right before going live.</li>
+    </ul>
+
+    <h3>10.2 Recommended Behavior</h3>
+    <p>
+      During the starting timer / countdown phase, the interface should still allow:
+    </p>
+    <ul>
+      <li>voice volume adjustment</li>
+      <li>background music volume adjustment</li>
+      <li>voice enable / disable toggle</li>
+      <li>BGM selection or mute control</li>
+      <li>final pre-live sound check without leaving the main overlay</li>
+    </ul>
+
+    <h3>10.3 How It Fits Into The Existing Platform</h3>
+    <p>
+      The current platform already has:
+    </p>
+    <ul>
+      <li>voice commentary APIs</li>
+      <li>voice-assignment APIs</li>
+      <li>BGM playlist APIs</li>
+      <li>a visible rotation / countdown timer in the live overlay</li>
+    </ul>
+    <p>
+      Because those systems already exist, keeping voice and BGM sliders visible during the starting timer is a natural extension of the current architecture.
+    </p>
+
+    <h3>10.4 Product Recommendation</h3>
+    <p>
+      From a UX point of view, the cleanest design is:
+    </p>
+    <ol>
+      <li>show the stream-start timer prominently</li>
+      <li>keep voice and BGM sliders pinned in the top bar or control dock</li>
+      <li>allow changes while the countdown is active</li>
+      <li>preserve the selected levels when the stream transitions into live commentary mode</li>
+    </ol>
+
+    <h2>11. Packaging And Distribution Stack</h2>
+    <p>
+      The project is also packaged as a desktop app.
+    </p>
+    <ul>
+      <li><code>Electron</code> provides the desktop shell.</li>
+      <li><code>electron-builder</code> builds the distributable app.</li>
+      <li><code>PyInstaller</code> bundles the Python backend into a desktop-friendly backend executable.</li>
+    </ul>
+
+    <h2>12. Why This Architecture Works Well</h2>
+    <ul>
+      <li>The live analysis layer is separated from the voice layer.</li>
+      <li>The voice system can fall back safely if a preferred runtime is missing.</li>
+      <li>The conversation engine can reuse the same market inputs in both short-form and long-form commentary.</li>
+      <li>The backend API keeps voice, analysis, strategy, and file serving in one local service.</li>
+      <li>The desktop packaging stack makes the whole system easier to run as one app.</li>
+    </ul>
+
+    <h2>13. Final Summary</h2>
+    <p>
+      This platform performs crypto live analysis by collecting live market data, analyzing structure across multiple timeframes,
+      and then presenting that analysis visually and verbally.
+    </p>
+    <p>
+      Its major strengths are:
+    </p>
+    <ul>
+      <li>live market analysis</li>
+      <li>pattern and structure visualization</li>
+      <li>voice-pack based commentary</li>
+      <li>multi-speaker conversation generation</li>
+      <li>desktop-ready packaging</li>
+    </ul>
+    <p>
+      In simple terms, the system works like this:
+    </p>
+    <ol>
+      <li>get live market data</li>
+      <li>analyze it</li>
+      <li>summarize it</li>
+      <li>render it on screen</li>
+      <li>optionally turn it into spoken commentary using voice packs and structured conversation templates</li>
+    </ol>
+
+    <p class="small">
+      This document is technical documentation and educational project explanation, not financial advice.
+    </p>
+  </body>
+</html>

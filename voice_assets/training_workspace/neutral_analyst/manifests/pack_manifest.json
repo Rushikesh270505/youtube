@@ -1,0 +1,14 @@
+{
+  "pack_id": "neutral_analyst",
+  "display_name": "Zephyr",
+  "role": "Analyst 2",
+  "voice_goal": "Calm, logical, data-driven strategist",
+  "target_runtime": "piper",
+  "expected_output_model": "voice_assets/neutral_analyst/neutral_analyst.onnx",
+  "notes": [
+    "Record clean mono WAV clips at 22050 Hz or higher.",
+    "Keep room noise low and maintain consistent mic distance.",
+    "Name raw clips sequentially, for example 001.wav, 002.wav.",
+    "Use the prompts file as the transcript source for initial dataset collection."
+  ]
+}

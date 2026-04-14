@@ -1,6 +1,12 @@
 __pycache__/
 .pytest_cache/
 .venv/
+.venv311/
+.DS_Store
+node_modules/
+dist/
+release/
+build/
 
 voice_assets/**/*.onnx
 voice_assets/**/*.onnx.json

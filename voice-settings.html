@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Voice Settings Control Surface</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css?v=20260326-voice-settings" />
+  </head>
+  <body class="voice-settings-page">
+    <div class="voice-settings-shell">
+      <header class="voice-settings-topbar">
+        <div class="voice-settings-kicker">Live Voice Surface</div>
+        <h1 class="voice-settings-title">Role Voice Control</h1>
+        <p class="voice-settings-copy">Switch Analyst 1, Analyst 2, or Host on the fly. Changes persist locally and interrupt the current overlay playback on the next poll cycle.</p>
+        <div class="voice-settings-links">
+          <a class="voice-settings-link" href="/">Open Overlay</a>
+          <span id="voice-settings-version" class="voice-settings-version">Version 0</span>
+        </div>
+      </header>
+
+      <main class="voice-settings-main">
+        <nav id="voice-role-tabs" class="voice-role-tabs" aria-label="Voice roles"></nav>
+
+        <section class="voice-settings-stage">
+          <div class="voice-settings-stage-head">
+            <div>
+              <div id="voice-settings-active-role" class="voice-settings-active-role">Analyst 1</div>
+              <div id="voice-settings-active-voice" class="voice-settings-active-voice">Loading voice catalog...</div>
+            </div>
+            <div id="voice-settings-status" class="voice-settings-status">Connecting to local voice service</div>
+          </div>
+
+          <div class="voice-settings-groups">
+            <section class="voice-settings-group">
+              <div class="voice-settings-group-head">
+                <h2>Female Voices</h2>
+                <span id="voice-count-female" class="voice-settings-group-count">0</span>
+              </div>
+              <div id="voice-group-female" class="voice-card-grid"></div>
+            </section>
+
+            <section class="voice-settings-group">
+              <div class="voice-settings-group-head">
+                <h2>Male Voices</h2>
+                <span id="voice-count-male" class="voice-settings-group-count">0</span>
+              </div>
+              <div id="voice-group-male" class="voice-card-grid"></div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="voice-settings.js?v=20260326-voice-settings"></script>
+  </body>
+</html>

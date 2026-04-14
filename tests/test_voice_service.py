@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import subprocess
+import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 from fastapi.testclient import TestClient
@@ -10,49 +13,133 @@ import voice_service
 
 
 class VoiceServiceTests(unittest.TestCase):
-  def test_summary_commentary_stays_cautious(self) -> None:
-    clips = voice_service.plan_commentary_sequence(
-      {
-        "mode": "intermission_summary",
-        "coin": {"pair": "BTC / USDT"},
-        "displayed_interval": "1h",
-        "summary": {
-          "bias_phrase": "mildly bearish",
-          "top_patterns": [
-            {"name": "Descending Triangle"},
-            {"name": "Dead Cat Bounce"},
-            {"name": "Stair Step Down"},
-          ],
-        },
-        "voice_pack_ids": ["neutral_analyst", "high_energy_host", "calm_educator"],
-      }
-    )
-    combined_text = " ".join(clip["text"] for clip in clips)
-    self.assertEqual(len(clips), 4)
-    self.assertEqual(clips[0]["speaker_id"], "calm_educator")
-    self.assertIn("currently seems", combined_text)
-    self.assertNotRegex(combined_text.lower(), r"\bconfirmed\b|\bdefinitely\b|\bwill\b")
+  def setUp(self) -> None:
+    self.temp_dir = tempfile.TemporaryDirectory()
+    self.original_assignments_root = voice_service.VOICE_ASSIGNMENTS_ROOT
+    self.original_assignments_path = voice_service.VOICE_ASSIGNMENTS_PATH
+    voice_service.VOICE_ASSIGNMENTS_ROOT = Path(self.temp_dir.name)
+    voice_service.VOICE_ASSIGNMENTS_PATH = voice_service.VOICE_ASSIGNMENTS_ROOT / "voice_assignments.json"
+    voice_service._LOCAL_VOICE_CATALOG_CACHE = []
+    voice_service._LOCAL_VOICE_CATALOG_CACHE_AT = 0
+    voice_service._SAY_VOICE_CACHE = None
 
-  def test_news_commentary_uses_source_and_headline(self) -> None:
-    clips = voice_service.plan_commentary_sequence(
-      {
-        "mode": "intermission_news",
-        "news_items": [
-          {
-            "source": "CoinDesk",
-            "title": "Bitcoin options signal extreme fear",
-            "summary": "Investors remain defensive while downside protection keeps getting bid.",
-          }
-        ],
-        "voice_pack_ids": ["neutral_analyst", "high_energy_host", "calm_educator"],
-      }
-    )
-    self.assertEqual(clips[0]["stage"], "news")
-    self.assertIn("CoinDesk", clips[0]["text"])
-    self.assertIn("Bitcoin options signal extreme fear", clips[0]["text"])
+  def tearDown(self) -> None:
+    voice_service.VOICE_ASSIGNMENTS_ROOT = self.original_assignments_root
+    voice_service.VOICE_ASSIGNMENTS_PATH = self.original_assignments_path
+    voice_service._LOCAL_VOICE_CATALOG_CACHE = []
+    voice_service._LOCAL_VOICE_CATALOG_CACHE_AT = 0
+    voice_service._SAY_VOICE_CACHE = None
+    self.temp_dir.cleanup()
 
-  def test_live_commentary_stays_non_committal(self) -> None:
-    clips = voice_service.plan_commentary_sequence(
+  @staticmethod
+  def sample_catalog() -> list[dict[str, str]]:
+    return [
+      {
+        "voice_name": "Samantha (English (US))",
+        "display_name": "Samantha",
+        "locale": "en_US",
+        "accent_label": "English (US)",
+        "gender": "Female",
+      },
+      {
+        "voice_name": "Daniel (English (UK))",
+        "display_name": "Daniel",
+        "locale": "en_GB",
+        "accent_label": "English (UK)",
+        "gender": "Male",
+      },
+      {
+        "voice_name": "Aman (English (India))",
+        "display_name": "Aman",
+        "locale": "en_IN",
+        "accent_label": "English (India)",
+        "gender": "Male",
+      },
+    ]
+
+  def test_local_voice_catalog_filters_to_english_human_voices(self) -> None:
+    completed = subprocess.CompletedProcess(
+      args=["osascript"],
+      returncode=0,
+      stdout="\n".join(
+        [
+          "Samantha (English (US))\ten_US\tVoiceGenderFemale",
+          "Daniel (English (UK))\ten_GB\tVoiceGenderMale",
+          "Albert\ten_US\tVoiceGenderNeuter",
+          "Amelie\tfr_CA\tVoiceGenderFemale",
+          "Samantha (English (US))\ten_US\tVoiceGenderFemale",
+        ]
+      ),
+      stderr="",
+    )
+    with patch("voice_service.subprocess.run", return_value=completed), patch(
+      "voice_service.available_say_voices",
+      return_value={"Samantha (English (US))", "Daniel (English (UK))", "Albert", "Amelie"},
+    ):
+      catalog = voice_service.list_local_voice_catalog(force_refresh=True)
+
+    self.assertEqual([voice["voice_name"] for voice in catalog], ["Samantha (English (US))", "Daniel (English (UK))"])
+    self.assertTrue(all(voice["locale"].startswith("en_") for voice in catalog))
+    self.assertEqual({voice["gender"] for voice in catalog}, {"Female", "Male"})
+
+  @patch("voice_service.list_local_voice_catalog")
+  def test_voice_assignments_persist_and_allow_duplicate_reuse(self, catalog_mock) -> None:
+    catalog_mock.return_value = self.sample_catalog()
+
+    initial = voice_service.get_voice_assignments()
+    self.assertTrue(voice_service.VOICE_ASSIGNMENTS_PATH.exists())
+    self.assertEqual(set(initial["roles"]), {"analyst_1", "analyst_2", "host"})
+
+    updated = voice_service.update_voice_assignment("analyst_1", "Daniel (English (UK))")
+    updated = voice_service.update_voice_assignment("analyst_2", "Daniel (English (UK))")
+
+    reloaded = voice_service.get_voice_assignments()
+    self.assertEqual(updated["roles"]["analyst_1"], "Daniel (English (UK))")
+    self.assertEqual(updated["roles"]["analyst_2"], "Daniel (English (UK))")
+    self.assertEqual(reloaded["roles"]["analyst_1"], "Daniel (English (UK))")
+    self.assertEqual(reloaded["roles"]["analyst_2"], "Daniel (English (UK))")
+    self.assertGreaterEqual(reloaded["version"], 2)
+
+  @patch("voice_service.list_local_voice_catalog")
+  def test_voice_assignment_rejects_unknown_voice(self, catalog_mock) -> None:
+    catalog_mock.return_value = self.sample_catalog()
+    with self.assertRaises(ValueError):
+      voice_service.update_voice_assignment("host", "Unknown Voice")
+
+  @patch("voice_service.audio_duration_ms", return_value=900)
+  @patch("voice_service.materialize_clip_asset")
+  @patch("voice_service.cleanup_audio_cache")
+  @patch("voice_service.shutil.which", return_value="/usr/bin/say")
+  @patch("voice_service.available_say_voices")
+  @patch("voice_service.get_voice_assignments")
+  def test_render_commentary_uses_assigned_host_voice_for_lead_alerts(
+    self,
+    assignments_mock,
+    available_voices_mock,
+    _which_mock,
+    _cleanup_mock,
+    materialize_mock,
+    _duration_mock,
+  ) -> None:
+    assignments_mock.return_value = {
+      "version": 3,
+      "updated_at": "2026-03-26T12:00:00Z",
+      "roles": {
+        "analyst_1": "Daniel (English (UK))",
+        "analyst_2": "Samantha (English (US))",
+        "host": "Aman (English (India))",
+      },
+    }
+    available_voices_mock.return_value = {"Daniel (English (UK))", "Samantha (English (US))", "Aman (English (India))"}
+    fake_audio = Path(self.temp_dir.name) / "01-host.wav"
+    fake_audio.write_bytes(b"RIFFdemo")
+    materialize_mock.side_effect = lambda _pack, runtime, _text, _session_dir, _clip_id: {
+      "audio_path": fake_audio,
+      "runtime": runtime,
+      "metadata": {},
+    }
+
+    response = voice_service.render_commentary_response(
       {
         "mode": "live_event",
         "coin": {"pair": "ETH / USDT"},
@@ -62,81 +149,76 @@ class VoiceServiceTests(unittest.TestCase):
           "lead_pattern_name": "Descending Triangle",
           "lead_interval": "4h",
         },
-        "voice_pack_ids": ["neutral_analyst", "high_energy_host", "calm_educator"],
       }
     )
-    self.assertEqual(len(clips), 1)
-    self.assertIn("still a live read", clips[0]["text"])
-    self.assertNotRegex(clips[0]["text"].lower(), r"\bconfirmed\b|\bdefinitely\b|\bwill\b")
 
-  @patch("voice_service.available_say_voices", return_value={"Karen", "Flo (English (US))", "Tara"})
-  @patch("voice_service.shutil.which")
-  def test_runtime_prefers_local_say_fallback_when_piper_is_missing(self, which_mock, _say_voices) -> None:
-    which_mock.side_effect = lambda command: "/usr/bin/say" if command == "say" else None
-    pack = voice_service.load_voice_packs()["neutral_analyst"]
-    runtime = voice_service.resolve_voice_runtime(pack)
-    self.assertTrue(runtime["available"])
-    self.assertEqual(runtime["engine"], "say")
+    self.assertTrue(response["audio_enabled"])
+    self.assertEqual(response["sequence"][0]["speaker_id"], "host")
+    self.assertEqual(response["sequence"][0]["speaker_label"], "Aman (English (India))")
+    self.assertTrue(any(item["id"] == "host" for item in response["voice_status"]))
 
-  def test_render_endpoint_returns_ordered_sequence(self) -> None:
-    with patch.object(
-      server.voice_service,
-      "render_commentary_response",
-      return_value={
-        "session_id": "demo123",
-        "audio_enabled": False,
-        "service_mode": "subtitle_only",
-        "sequence": [
-          {
-            "speaker_id": "neutral_analyst",
-            "speaker_label": "Axiom",
-            "text": "BTC / USDT just completed its six-timeframe read.",
-            "duration_ms": 1800,
-            "pause_ms": 240,
-            "audio_url": "",
-            "stage": "summary",
-            "subtitle_color": "#8ed8ff",
-          }
-        ],
-        "total_duration_ms": 2040,
+  def test_plan_commentary_sequence_supports_subscribe_cta(self) -> None:
+    sequence = voice_service.plan_commentary_sequence(
+      {
+        "mode": "subscribe_cta",
+        "event": {
+          "trigger": "idle_gap",
+          "line": "Join the crew, hit subscribe, and keep this live chart energy rolling.",
+        },
+      }
+    )
+
+    self.assertEqual(len(sequence), 1)
+    self.assertEqual(sequence[0]["speaker_id"], "host")
+    self.assertEqual(sequence[0]["stage"], "subscribe_cta")
+    self.assertEqual(sequence[0]["text"], "Join the crew, hit subscribe, and keep this live chart energy rolling.")
+    self.assertEqual(sequence[0]["meta"]["trigger"], "idle_gap")
+
+  def test_voice_catalog_endpoint_returns_grouped_catalog(self) -> None:
+    payload = {
+      "voices": self.sample_catalog(),
+      "voices_by_gender": {
+        "Female": [self.sample_catalog()[0]],
+        "Male": self.sample_catalog()[1:],
       },
-    ):
+      "assignments": {
+        "version": 2,
+        "updated_at": "2026-03-26T12:00:00Z",
+        "roles": {
+          "analyst_1": "Daniel (English (UK))",
+          "analyst_2": "Samantha (English (US))",
+          "host": "Aman (English (India))",
+        },
+      },
+    }
+    with patch.object(server.voice_service, "voice_catalog_payload", return_value=payload):
+      client = TestClient(server.app)
+      response = client.get("/api/voice-catalog")
+
+    self.assertEqual(response.status_code, 200)
+    body = response.json()
+    self.assertEqual(body["assignments"]["roles"]["host"], "Aman (English (India))")
+    self.assertEqual(len(body["voices_by_gender"]["Female"]), 1)
+
+  def test_voice_assignment_endpoint_updates_role(self) -> None:
+    updated = {
+      "version": 4,
+      "updated_at": "2026-03-26T12:00:00Z",
+      "roles": {
+        "analyst_1": "Daniel (English (UK))",
+        "analyst_2": "Samantha (English (US))",
+        "host": "Aman (English (India))",
+      },
+    }
+    with patch.object(server.voice_service, "update_voice_assignment", return_value=updated):
       client = TestClient(server.app)
       response = client.post(
-        "/api/commentary/render",
-        json={
-          "mode": "intermission_summary",
-          "coin": {"pair": "BTC / USDT"},
-          "voice_pack_ids": ["neutral_analyst", "high_energy_host", "calm_educator"],
-        },
+        "/api/voice-assignments",
+        json={"role": "host", "voice_name": "Aman (English (India))"},
       )
 
     self.assertEqual(response.status_code, 200)
-    payload = response.json()
-    self.assertEqual(payload["session_id"], "demo123")
-    self.assertEqual(payload["sequence"][0]["speaker_label"], "Axiom")
-
-  def test_voices_endpoint_exposes_three_host_slots(self) -> None:
-    with patch.object(
-      server.voice_service,
-      "list_voice_statuses",
-      return_value={
-        "default_voice_pack_ids": ["neutral_analyst", "high_energy_host", "calm_educator"],
-        "cast_ready": True,
-        "voices": [
-          {"id": "neutral_analyst", "available": True},
-          {"id": "high_energy_host", "available": True},
-          {"id": "calm_educator", "available": True},
-        ],
-      },
-    ):
-      client = TestClient(server.app)
-      response = client.get("/api/voices")
-
-    self.assertEqual(response.status_code, 200)
-    payload = response.json()
-    self.assertEqual(payload["default_voice_pack_ids"][0], "neutral_analyst")
-    self.assertEqual(len(payload["voices"]), 3)
+    self.assertEqual(response.json()["roles"]["host"], "Aman (English (India))")
 
 
 if __name__ == "__main__":

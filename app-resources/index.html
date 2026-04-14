@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crypto Live Stream Overlay</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Sci-fi aesthetics: tech mono, bold squared sans-serif -->
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css?v=20260409b" />
+  </head>
+  <body class="launch-active">
+    <div id="stream-launch-screen" class="stream-launch-screen" aria-hidden="false">
+      <div class="stream-launch-backdrop"></div>
+      <div class="stream-launch-grid"></div>
+      <div class="stream-launch-shell">
+        <div class="stream-launch-mark">Stream Gateway</div>
+        <h1 class="stream-launch-title">Start The Stream</h1>
+        <p class="stream-launch-copy">Tap the button to unlock audio, begin a spoken 10-second countdown, and bring the live overlay online.</p>
+        <div class="stream-launch-audio-panel" aria-label="Launch audio mix controls">
+          <div class="stream-launch-audio-copy">
+            <span class="stream-launch-audio-title">Countdown Audio Mix</span>
+            <span class="stream-launch-audio-note">Voice and BGM stay adjustable while the timer is running.</span>
+          </div>
+          <div class="stream-launch-audio-grid">
+            <label class="ribbon-slider-control" for="launch-bgm-volume-slider">
+              <span class="ribbon-slider-label">BGM</span>
+              <input id="launch-bgm-volume-slider" class="ribbon-slider-input" type="range" min="0" max="100" step="1" value="20" />
+              <span id="launch-bgm-volume-value" class="ribbon-slider-value">20%</span>
+            </label>
+            <label class="ribbon-slider-control" for="launch-voice-volume-slider">
+              <span class="ribbon-slider-label">Voice</span>
+              <input id="launch-voice-volume-slider" class="ribbon-slider-input" type="range" min="0" max="100" step="1" value="80" />
+              <span id="launch-voice-volume-value" class="ribbon-slider-value">80%</span>
+            </label>
+          </div>
+        </div>
+        <button id="stream-launch-button" class="stream-launch-button" type="button">
+          <span class="stream-launch-button-label">Start Stream</span>
+          <span class="stream-launch-button-hint">Voice countdown + live scene</span>
+        </button>
+        <div id="stream-launch-countdown" class="stream-launch-countdown">10</div>
+        <div id="stream-launch-status" class="stream-launch-status">Waiting for launch</div>
+      </div>
+    </div>
+    <div class="background-3d-layers">
+    </div>
+    <div class="terminal-grid">
+      <!-- Ambient Lighting -->
+      <div class="glow glow-top-left"></div>
+      <div class="glow glow-center"></div>
+
+      <!-- TOP NAV BAR -->
+      <header class="top-nav">
+        <!-- Circular Channel Logo -->
+        <div class="circle-mech">
+          <img src="assets/logo.png" class="channel-logo-img" alt="Channel Logo" onerror="this.src='assets/crypto-live-analysis-mark.svg'" />
+        </div>
+
+        <div class="top-nav-center">
+          <div class="stream-manifest">
+            <h1 class="manifest-title">CRYPTO LIVE ANALYSIS</h1>
+            <h2 class="manifest-subtitle">AI-DRIVEN REAL-TIME CRYPTO TRADING INTELLIGENCE</h2>
+          </div>
+        </div>
+
+        <div class="top-nav-right">
+          <div class="live-pill"><div class="live-dot"></div>LIVE</div>
+          <a class="next-pill queue-pill strategy-lab-link" href="/strategy-lab.html">Strategy Lab</a>
+          <div id="next-coin-queue" class="next-coin-queue">
+            <div class="next-pill primary">
+              <span id="next-coin">ETH</span>
+              <span id="rotation-countdown">11:48</span>
+            </div>
+            <div class="next-pill queue-pill">
+              <span data-queue-coin="1">SOL</span>
+              <span data-queue-countdown="1">23:48</span>
+            </div>
+            <div class="next-pill queue-pill">
+              <span data-queue-coin="2">PAXG</span>
+              <span data-queue-countdown="2">35:48</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <!-- LEFT COLUMN -->
+        <div class="col-left">
+          
+          <!-- Timeline / Status Banner -->
+          <div class="status-banner neon-panel">
+            <div class="pair-box">
+              <span class="eyebrow">SINGLE LIVE ROTATION</span>
+              <div class="pair-val">
+                <span class="btc-pill" id="coin-avatar">BTC</span>
+                <span id="coin-pair">BTC / USDT</span>
+              </div>
+              <span class="pair-sub">CAPITULATION BOTTOM - 0%</span>
+            </div>
+            
+            <div class="timeframe-container">
+              <div class="timeframe-header">
+                <span class="eyebrow timeframe-cycle-text">TIMEFRAME CYCLE</span>
+                <div class="timeframe-switch-info">
+                  <span id="current-interval" class="active-tf">4h</span>
+                  <span id="interval-switch-copy">Switching to 1h in 0:46</span>
+                </div>
+              </div>
+              <div class="timeframes" id="interval-switchboard">
+                <!-- JS injected chips will go here.
+                     Their styling will be heavily modified in CSS to be rectangular -->
+              </div>
+              <!-- Added slot-progress to avoid JS errors, integrated as a bottom line -->
+              <div class="progress-track"><div id="slot-progress" class="progress-fill"></div></div>
+            </div>
+          </div>
+
+          <!-- Main Chart -->
+          <div class="chart-panel neon-panel has-brackets">
+
+            <div class="chart-price-overlay">
+               <div class="large-price-row">
+                 <img id="current-price-coin-logo" class="price-coin-logo" src="" alt="" aria-hidden="true" />
+                 <div class="large-price" id="current-price">70,566</div>
+               </div>
+               <div class="large-change" id="current-change">+2.53%</div>
+               <div class="price-desc" id="alert-tagline">Chart 4h - Capitulation Bottom</div>
+            </div>
+
+            <!-- The chart container itself -->
+            <div class="chart-stage-inner">
+               <svg id="price-chart" viewBox="0 0 1120 560" preserveAspectRatio="none" aria-label="Price chart"></svg>
+            </div>
+          </div>
+
+          <!-- Commentary Dock -->
+          <div class="commentary-panel neon-panel">
+            <div class="cyber-bracket cyber-bracket-left"></div>
+            <div class="cyber-bracket cyber-bracket-right"></div>
+            <div id="voice-subtitle-layer">
+               <!-- Will be populated by JS -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="col-right">
+          
+          <!-- Top Right Pattern Reference -->
+          <div class="reference-panel neon-panel corner-cut" id="pattern-reference-card">
+             <!-- Loaded dynamically by app.js: contains the mini-graph and explanation -->
+          </div>
+          
+          <!-- Next Closest Matches (Secondary Reads) -->
+          <div class="secondary-panel neon-panel corner-cut">
+            <div class="panel-head">
+              <div class="eyebrow">SECONDARY PATTERN READS</div>
+              <h2>Next Closest Matches</h2>
+            </div>
+            <div id="lead-pattern-card"></div>
+          </div>
+
+          <!-- Headlines -->
+          <div class="news-panel neon-panel corner-cut">
+            <div class="panel-head headline-head">
+              <div class="headline-title-col">
+                <div class="eyebrow">LATEST HEADLINES</div>
+                <h2>Headline Feed</h2>
+              </div>
+              <div class="timer" id="news-rotation-meta">00:07 left</div>
+            </div>
+            <div id="news-panel-card"></div>
+            <div class="dyor-watermark">DYOR</div>
+          </div>
+
+        </div>
+      </main>
+      
+      <!-- Bottom Alert Ribbon -->
+      <footer class="bottom-ribbon neon-panel">
+         <div class="ribbon-content">
+           <div class="info-icon">!</div>
+           <div class="info-text">
+              <h3>This stream is for educational purposes only.</h3>
+              <p>This is not financial advice. Do your own research. We are not responsible for gains, losses, or decisions made using this content.</p>
+           </div>
+           <div class="ribbon-controls">
+             <div class="ribbon-control-row">
+               <button id="stream-skip-button" class="ribbon-action-button" type="button">Skip</button>
+               <label class="ribbon-slider-control" for="bgm-volume-slider">
+                 <span class="ribbon-slider-label">BGM</span>
+                 <input id="bgm-volume-slider" class="ribbon-slider-input" type="range" min="0" max="100" step="1" value="20" />
+                 <span id="bgm-volume-value" class="ribbon-slider-value">20%</span>
+               </label>
+             </div>
+             <div class="ribbon-control-row">
+               <button id="stream-stop-button" class="ribbon-action-button stop" type="button">Stop</button>
+               <label class="ribbon-slider-control" for="voice-volume-slider">
+                 <span class="ribbon-slider-label">Voice</span>
+                 <input id="voice-volume-slider" class="ribbon-slider-input" type="range" min="0" max="100" step="1" value="80" />
+                 <span id="voice-volume-value" class="ribbon-slider-value">80%</span>
+               </label>
+             </div>
+           </div>
+         </div>
+      </footer>
+    </div>
+
+    <!-- 
+      =========== HIDDEN DOM BINDINGS ===========
+      Keeps app.js from throwing errors for elements that
+      were removed structurally but are still bound by JS.
+    -->
+    <div id="hidden-app-bindings" style="display:none;">
+      <span id="brand-pattern">Hidden Pattern Name</span>
+      <button id="voice-toggle">Voice</button>
+      <span id="voice-button-label">Label</span>
+      <span id="voice-status">Status</span>
+      <span id="rsi-value">0</span>
+      <span id="macd-value">0</span>
+      <span id="signal-direction">0</span>
+      <span id="signal-confidence">0</span>
+      <span id="signal-tone">0</span>
+      <span id="signal-phase">0</span>
+      <span id="momentum-context">context</span>
+      <span id="timeframe-confirmation">confirm</span>
+      <span id="engine-status">status</span>
+      <span id="alert-cadence">cadence</span>
+      <span id="alert-title">title</span>
+      <span id="alert-body">body</span>
+      <span id="alert-confidence">100</span>
+      <svg id="rsi-chart"></svg>
+      <svg id="macd-chart"></svg>
+      <div id="ticker-track"></div>
+    </div>
+
+    <!-- Required Audio & Overlay Elements -->
+    <audio id="voice-audio-player" class="voice-audio-player" preload="auto"></audio>
+    <audio id="bgm-audio-player" class="voice-audio-player" preload="auto" loop></audio>
+    <div id="intermission-overlay" class="intermission-overlay" aria-hidden="true"></div>
+    <div id="subscribe-promo-popup" class="subscribe-promo-popup" aria-hidden="true">
+      <div class="subscribe-promo-stack">
+        <div class="subscribe-promo-chip like">
+          <span class="subscribe-promo-label">LIKE</span>
+          <span class="subscribe-promo-icon">👍</span>
+        </div>
+        <div class="subscribe-promo-chip subscribe">
+          <span class="subscribe-promo-label">SUBSCRIBE</span>
+          <span class="subscribe-promo-icon">🔔</span>
+        </div>
+      </div>
+    </div>
+
+    <script src="app.js?v=20260409b"></script>
+  </body>
+</html>

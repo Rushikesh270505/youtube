@@ -128,6 +128,8 @@ p {
 }
 
 .topbar {
+  position: relative;
+  z-index: 48;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
@@ -197,12 +199,14 @@ p {
 
 .topbar-right {
   justify-content: flex-end;
-  gap: 16px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .live-pill,
 .next-panel,
 .voice-panel,
+.topbar-link,
 .meta-pill,
 .card-tag,
 .spotlight-chip {
@@ -249,6 +253,26 @@ p {
     background 180ms ease;
 }
 
+.topbar-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 16px;
+  color: inherit;
+  text-decoration: none;
+  font-weight: 700;
+  transition:
+    border-color 180ms ease,
+    transform 180ms ease,
+    background 180ms ease;
+}
+
+.topbar-link:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 214, 138, 0.22);
+}
+
 .voice-panel:hover {
   transform: translateY(-1px);
   border-color: rgba(255, 214, 138, 0.22);
@@ -284,6 +308,89 @@ p {
   align-items: baseline;
   gap: 14px;
   font-size: 1rem;
+}
+
+.audio-mix-panel {
+  display: grid;
+  gap: 6px;
+  min-width: 210px;
+  padding: 8px 12px 10px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.audio-mix-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.74rem;
+}
+
+.audio-mix-label {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.audio-mix-value,
+.audio-mix-track {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.audio-slider {
+  width: 100%;
+  margin: 0;
+  accent-color: var(--gold);
+  cursor: pointer;
+}
+
+.audio-mix-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.audio-mix-track {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.audio-toggle {
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  padding: 6px 10px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.audio-toggle:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 214, 138, 0.22);
+}
+
+.audio-toggle.active {
+  border-color: rgba(89, 239, 170, 0.24);
+  background: rgba(89, 239, 170, 0.08);
+}
+
+.audio-toggle.warning {
+  border-color: rgba(255, 145, 116, 0.24);
+  background: rgba(255, 145, 116, 0.08);
 }
 
 .next-panel strong {

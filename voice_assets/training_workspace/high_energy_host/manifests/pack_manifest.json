@@ -1,0 +1,14 @@
+{
+  "pack_id": "high_energy_host",
+  "display_name": "Alnilam",
+  "role": "Analyst 1",
+  "voice_goal": "Confident, sharp, slightly aggressive trader mindset",
+  "target_runtime": "piper",
+  "expected_output_model": "voice_assets/high_energy_host/high_energy_host.onnx",
+  "notes": [
+    "Record clean mono WAV clips at 22050 Hz or higher.",
+    "Keep room noise low and maintain consistent mic distance.",
+    "Name raw clips sequentially, for example 001.wav, 002.wav.",
+    "Use the prompts file as the transcript source for initial dataset collection."
+  ]
+}

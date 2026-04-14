@@ -1,0 +1,78 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(256 256) rotate(90) scale(240)">
+      <stop stop-color="#071726"/>
+      <stop offset="1" stop-color="#01050B"/>
+    </radialGradient>
+    <linearGradient id="ring" x1="76" y1="74" x2="438" y2="438" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#68F2FF"/>
+      <stop offset="0.52" stop-color="#1AA9FF"/>
+      <stop offset="1" stop-color="#6FFFB3"/>
+    </linearGradient>
+    <linearGradient id="barsUp" x1="214" y1="134" x2="214" y2="352" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D9FFA4"/>
+      <stop offset="1" stop-color="#3BE267"/>
+    </linearGradient>
+    <linearGradient id="barsDown" x1="214" y1="164" x2="214" y2="352" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7DF1FF"/>
+      <stop offset="1" stop-color="#18C9FF"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="64" fill="url(#bg)"/>
+  <g opacity="0.18">
+    <path d="M48 394H464" stroke="#2EDBFF"/>
+    <path d="M88 110H424" stroke="#2EDBFF"/>
+    <path d="M88 152H424" stroke="#2EDBFF" stroke-dasharray="6 8"/>
+    <path d="M88 194H424" stroke="#2EDBFF" stroke-dasharray="6 8"/>
+    <path d="M88 236H424" stroke="#2EDBFF" stroke-dasharray="6 8"/>
+    <path d="M88 278H424" stroke="#2EDBFF" stroke-dasharray="6 8"/>
+    <path d="M88 320H424" stroke="#2EDBFF" stroke-dasharray="6 8"/>
+    <path d="M88 110V394" stroke="#2EDBFF"/>
+    <path d="M130 110V394" stroke="#2EDBFF" stroke-dasharray="6 8"/>
+    <path d="M172 110V394" stroke="#2EDBFF" stroke-dasharray="6 8"/>
+    <path d="M214 110V394" stroke="#2EDBFF" stroke-dasharray="6 8"/>
+    <path d="M256 110V394" stroke="#2EDBFF" stroke-dasharray="6 8"/>
+    <path d="M298 110V394" stroke="#2EDBFF" stroke-dasharray="6 8"/>
+    <path d="M340 110V394" stroke="#2EDBFF" stroke-dasharray="6 8"/>
+    <path d="M382 110V394" stroke="#2EDBFF" stroke-dasharray="6 8"/>
+    <path d="M424 110V394" stroke="#2EDBFF"/>
+  </g>
+  <g filter="url(#glow)">
+    <circle cx="256" cy="256" r="192" stroke="url(#ring)" stroke-width="8"/>
+    <circle cx="256" cy="256" r="167" stroke="#55E9FF" stroke-opacity="0.45" stroke-width="2" stroke-dasharray="4 10"/>
+    <path d="M39 256H98" stroke="#3BE8FF" stroke-width="3"/>
+    <path d="M414 256H473" stroke="#3BE8FF" stroke-width="3"/>
+    <path d="M256 39V98" stroke="#3BE8FF" stroke-width="3"/>
+    <path d="M256 414V473" stroke="#3BE8FF" stroke-width="3"/>
+  </g>
+  <g opacity="0.5" filter="url(#glow)">
+    <path d="M136 152L166 124L202 148L228 118L258 138L294 126L330 154L362 138" stroke="#53E5FF" stroke-width="2.4"/>
+    <circle cx="136" cy="152" r="4" fill="#7CFAFF"/>
+    <circle cx="166" cy="124" r="4" fill="#7CFAFF"/>
+    <circle cx="202" cy="148" r="4" fill="#7CFAFF"/>
+    <circle cx="228" cy="118" r="4" fill="#7CFAFF"/>
+    <circle cx="258" cy="138" r="4" fill="#7CFAFF"/>
+    <circle cx="294" cy="126" r="4" fill="#7CFAFF"/>
+    <circle cx="330" cy="154" r="4" fill="#7CFAFF"/>
+    <circle cx="362" cy="138" r="4" fill="#7CFAFF"/>
+  </g>
+  <text x="114" y="238" fill="#153A67" font-family="Arial, sans-serif" font-size="120" font-weight="700" opacity="0.58">₿</text>
+  <g filter="url(#glow)">
+    <path d="M116 330C146 302 175 276 205 278C232 280 254 321 286 320C322 319 350 271 392 236" stroke="#1ED9FF" stroke-width="6" stroke-linecap="round"/>
+    <rect x="148" y="278" width="18" height="58" rx="4" fill="url(#barsDown)"/>
+    <rect x="182" y="312" width="18" height="40" rx="4" fill="url(#barsUp)"/>
+    <rect x="216" y="296" width="18" height="56" rx="4" fill="url(#barsUp)"/>
+    <rect x="250" y="254" width="18" height="98" rx="4" fill="url(#barsUp)"/>
+    <rect x="284" y="204" width="18" height="148" rx="4" fill="url(#barsUp)"/>
+    <rect x="318" y="244" width="18" height="108" rx="4" fill="url(#barsDown)"/>
+    <rect x="352" y="170" width="18" height="182" rx="4" fill="url(#barsUp)"/>
+    <rect x="386" y="142" width="18" height="210" rx="4" fill="url(#barsUp)"/>
+  </g>
+</svg>
