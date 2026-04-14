@@ -14,7 +14,6 @@ Crypto live analysis software for a single rotating YouTube live stream. The cur
 The overlay now runs from a small FastAPI server instead of `python -m http.server`, so the same local URL serves:
 
 - the live analysis frontend
-- the `Strategy Lab` backtest website
 - voice status APIs
 - rendered local audio clips
 
@@ -28,12 +27,6 @@ Then open:
 
 ```text
 http://127.0.0.1:4173
-```
-
-Strategy website:
-
-```text
-http://127.0.0.1:4173/strategy-lab.html
 ```
 
 ## Voice Commentary
@@ -131,9 +124,6 @@ The script generator follows the stream spec:
 - `GET /api/voice-assignments`
 - `POST /api/voice-assignments`
 - `POST /api/commentary/render`
-- `GET /api/strategy-lab/report`
-- `POST /api/strategy-lab/run`
-- `GET /api/strategy-lab/trade/{trade_id}`
 - `GET /api/audio/{session_id}/{clip_id}.wav`
 
 ## Project Files
@@ -142,9 +132,6 @@ The script generator follows the stream spec:
 - [detectors.mjs](/Users/rushikeshkatari/Desktop/youtube/detectors.mjs): dedicated 68-pattern detector registry
 - [intermission-utils.mjs](/Users/rushikeshkatari/Desktop/youtube/intermission-utils.mjs): cross-timeframe vote aggregation and subtitle summaries
 - [server.py](/Users/rushikeshkatari/Desktop/youtube/server.py): FastAPI app and static hosting
-- [strategy-lab.html](/Users/rushikeshkatari/Desktop/youtube/strategy-lab.html): BTC strategy website shell
-- [strategy-lab.js](/Users/rushikeshkatari/Desktop/youtube/strategy-lab.js): strategy leaderboard, trade-call feed, annotated chart UI
-- [strategy-lab.css](/Users/rushikeshkatari/Desktop/youtube/strategy-lab.css): dedicated strategy lab styling
 - [voice-settings.html](/Users/rushikeshkatari/Desktop/youtube/voice-settings.html): local website for selecting live voice-role assignments
 - [voice-settings.js](/Users/rushikeshkatari/Desktop/youtube/voice-settings.js): frontend logic for role tabs, voice cards, and live assignment updates
 - [voice_service.py](/Users/rushikeshkatari/Desktop/youtube/voice_service.py): voice-pack loading, local audio rendering, fallback logic
@@ -165,10 +152,7 @@ Useful local checks:
 
 ```bash
 node --check app.js
-node --check strategy-lab.js
 python3 -m py_compile server.py voice_service.py
-python3 -m py_compile backtest/*.py
-python3 -m unittest tests/test_backtest_engine.py
 python3 -m unittest tests/test_voice_service.py
 node --test tests/intermission-utils.test.mjs
 node --test tests/detectors.test.mjs

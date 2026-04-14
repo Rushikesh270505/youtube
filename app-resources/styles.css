@@ -519,14 +519,6 @@ body.launch-active #intermission-overlay {
   color: rgba(126, 194, 255, 0.82);
 }
 
-.strategy-lab-link {
-  text-decoration: none;
-  color: rgba(209, 235, 255, 0.94);
-}
-
-.strategy-lab-link:hover {
-  border-color: rgba(114, 226, 255, 0.45);
-}
 
 .live-dot {
   width: 8px;
