@@ -1,6 +1,6 @@
 # Crypto Live Stream Overlay
 
-OBS-ready crypto overlay for a single rotating YouTube live stream. The current build combines:
+Crypto live analysis software for a single rotating YouTube live stream. The current build combines:
 
 - live Binance candles and ticker data
 - a 68-pattern dedicated detector registry
@@ -13,7 +13,7 @@ OBS-ready crypto overlay for a single rotating YouTube live stream. The current 
 
 The overlay now runs from a small FastAPI server instead of `python -m http.server`, so the same local URL serves:
 
-- the OBS browser-source frontend
+- the live analysis frontend
 - the `Strategy Lab` backtest website
 - voice status APIs
 - rendered local audio clips
@@ -60,6 +60,30 @@ Playback order:
 
 If Piper models are not installed yet, the app still works with local `say` fallback. Large Piper models should go under `voice_assets/` and are gitignored.
 
+### Voice Pack Selection Website
+
+There is also a dedicated local control surface for switching the live cast without editing JSON by hand.
+
+Open:
+
+```text
+http://127.0.0.1:4173/voice-settings.html
+```
+
+What it does:
+
+- shows the current live assignments for `Analyst 1`, `Analyst 2`, and `Host`
+- loads the local English voice catalog from the backend
+- groups available voices into `Female Voices` and `Male Voices`
+- lets you click a voice card to reassign that role immediately
+- persists assignments locally so the overlay keeps using them on the next poll cycle
+
+The voice settings website uses these routes:
+
+- `GET /api/voice-catalog`
+- `GET /api/voice-assignments`
+- `POST /api/voice-assignments`
+
 ## Local Podcast Engine
 
 There is now a separate multi-speaker podcast API for richer analyst-style commentary using your own local voice packs.
@@ -103,22 +127,14 @@ The script generator follows the stream spec:
 
 - `GET /api/health`
 - `GET /api/voices`
+- `GET /api/voice-catalog`
+- `GET /api/voice-assignments`
+- `POST /api/voice-assignments`
 - `POST /api/commentary/render`
 - `GET /api/strategy-lab/report`
 - `POST /api/strategy-lab/run`
 - `GET /api/strategy-lab/trade/{trade_id}`
 - `GET /api/audio/{session_id}/{clip_id}.wav`
-
-## OBS Setup
-
-Use a Browser Source in OBS with:
-
-- URL: `http://127.0.0.1:4173`
-- Width: `1920`
-- Height: `1080`
-- FPS: `30`
-
-If you want audio directly from the browser source, enable OBS audio for that source.
 
 ## Project Files
 
@@ -129,6 +145,8 @@ If you want audio directly from the browser source, enable OBS audio for that so
 - [strategy-lab.html](/Users/rushikeshkatari/Desktop/youtube/strategy-lab.html): BTC strategy website shell
 - [strategy-lab.js](/Users/rushikeshkatari/Desktop/youtube/strategy-lab.js): strategy leaderboard, trade-call feed, annotated chart UI
 - [strategy-lab.css](/Users/rushikeshkatari/Desktop/youtube/strategy-lab.css): dedicated strategy lab styling
+- [voice-settings.html](/Users/rushikeshkatari/Desktop/youtube/voice-settings.html): local website for selecting live voice-role assignments
+- [voice-settings.js](/Users/rushikeshkatari/Desktop/youtube/voice-settings.js): frontend logic for role tabs, voice cards, and live assignment updates
 - [voice_service.py](/Users/rushikeshkatari/Desktop/youtube/voice_service.py): voice-pack loading, local audio rendering, fallback logic
 - [podcast_voice_engine.py](/Users/rushikeshkatari/Desktop/youtube/podcast_voice_engine.py): multi-speaker podcast script generation and local podcast rendering
 - [voice_packs/hosts.json](/Users/rushikeshkatari/Desktop/youtube/voice_packs/hosts.json): host manifests
